@@ -1,6 +1,5 @@
 ﻿# env / build
 ocr_env/
-ocr_local/
 uploads/
 __pycache__/
 *.pyc
