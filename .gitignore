@@ -1,0 +1,23 @@
+﻿# env / build
+ocr_env/
+ocr_local/
+uploads/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.tmp
+.env
+.venv/
+venv/
+ENV/
+build/
+dist/
+.eggs/
+*.egg-info/
+pytest_cache/
+.pytest_cache/
+.ipynb_checkpoints/
+.vscode/
+.idea/
