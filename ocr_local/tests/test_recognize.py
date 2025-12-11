@@ -9,10 +9,10 @@ if ROOT not in sys.path:
 
 
 def test_health():
-    from app import app
+    import ocr_server as app_mod
 
-    app.config["TESTING"] = True
-    client = app.test_client()
+    app_mod.app.config["TESTING"] = True
+    client = app_mod.app.test_client()
 
     resp = client.get("/health")
     assert resp.status_code == 200
@@ -20,16 +20,16 @@ def test_health():
 
 
 def test_recognize_stub(monkeypatch):
-    from app import app
+    import ocr_server as app_mod
 
-    app.config["TESTING"] = True
-    client = app.test_client()
+    app_mod.app.config["TESTING"] = True
+    client = app_mod.app.test_client()
 
     # Stub subprocess call to avoid invoking real OCR
     def fake_check_output(args, text=True):
         return "DUMMY123\n"
 
-    monkeypatch.setattr("app.subprocess.check_output", fake_check_output)
+    monkeypatch.setattr("ocr_server.subprocess.check_output", fake_check_output)
 
     data = {
         "image": (io.BytesIO(b"fakeimage"), "test.jpg"),
