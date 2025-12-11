@@ -1,3 +1,9 @@
+import sys
+import types
+
+# Stub pyodbc to avoid native dependency during tests
+sys.modules["pyodbc"] = types.SimpleNamespace(connect=lambda *a, **k: None)
+
 from app import app
 
 
