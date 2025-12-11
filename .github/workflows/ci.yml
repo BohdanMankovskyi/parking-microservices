@@ -22,6 +22,7 @@ jobs:
           - { name: notification_service, path: notification_service }
           - { name: ocr_service, path: ocr_service }
           - { name: tariff_service, path: tariff_service }
+          - { name: ocr_local, path: ocr_local }
     steps:
       - uses: actions/checkout@v4
 
