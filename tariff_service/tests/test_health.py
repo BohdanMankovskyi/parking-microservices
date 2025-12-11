@@ -1,4 +1,5 @@
 import sys
+import os
 import types
 
 
@@ -29,6 +30,11 @@ class DummyConn:
     def close(self):
         return None
 
+
+# Ensure project root on path
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
 
 # Prevent real DB connections during import
 sys.modules["pyodbc"] = types.SimpleNamespace(connect=lambda *a, **k: DummyConn())
