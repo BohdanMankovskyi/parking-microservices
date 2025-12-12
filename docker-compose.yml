@@ -36,8 +36,11 @@ services:
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
     depends_on:
-      - auth_service
-      - sqlserver
+      auth_service:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -54,9 +57,13 @@ services:
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
       VEHICLE_URL: "http://vehicle_service:5002"
     depends_on:
-      - auth_service
-      - vehicle_service
-      - sqlserver
+      auth_service:
+        condition: service_started
+      vehicle_service:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -72,8 +79,11 @@ services:
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
     depends_on:
-      - auth_service
-      - sqlserver
+      auth_service:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -85,8 +95,11 @@ services:
     environment:
       DB_SERVER: sqlserver
     depends_on:
-      - payment_service
-      - sqlserver
+      payment_service:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -98,10 +111,15 @@ services:
     environment:
       DB_SERVER: sqlserver
     depends_on:
-      - payment_service
-      - parking_service
-      - vehicle_service
-      - sqlserver
+      payment_service:
+        condition: service_started
+      parking_service:
+        condition: service_started
+      vehicle_service:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -119,11 +137,17 @@ services:
       OFFLINE_URL_BASE: "http://offline_payment_service:5008"
       OCR_LOCAL_URL: "http://ocr_local:5010/recognize"
     depends_on:
-      - auth_service
-      - parking_service
-      - payment_service
-      - vehicle_service
-      - sqlserver
+      auth_service:
+        condition: service_started
+      parking_service:
+        condition: service_started
+      payment_service:
+        condition: service_started
+      vehicle_service:
+        condition: service_started
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -133,13 +157,20 @@ services:
     ports:
       - "5006:5006"
     depends_on:
-      - auth_service
-      - vehicle_service
-      - parking_service
-      - payment_service
-      - analytics_service
-      - dashboard_service
-      - offline_payment_service
+      auth_service:
+        condition: service_started
+      vehicle_service:
+        condition: service_started
+      parking_service:
+        condition: service_started
+      payment_service:
+        condition: service_started
+      analytics_service:
+        condition: service_started
+      dashboard_service:
+        condition: service_started
+      offline_payment_service:
+        condition: service_started
     networks:
       - parking_net
 
@@ -170,7 +201,9 @@ services:
       DB_USER: sa
       DB_PASSWORD: SaPass123!
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
@@ -182,7 +215,9 @@ services:
     environment:
       DB_SERVER: sqlserver
     depends_on:
-      - sqlserver
+      sqlserver:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - parking_net
 
