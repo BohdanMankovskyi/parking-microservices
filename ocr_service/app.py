@@ -1,21 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 
 app = Flask(__name__)
-
-@app.route("/ocr/recognize", methods=["POST"])
-def recognize():
-    if "image" not in request.files:
-        return jsonify({"error": "No image provided"}), 400
-
-    return jsonify({
-        "message": "ok",
-        "plate": "XWE591"
-    }), 200
 
 
 @app.route("/health")
 def health():
-    return {"status": "ok"}
+    return jsonify({"status": "ok"})
 
 
 if __name__ == "__main__":
