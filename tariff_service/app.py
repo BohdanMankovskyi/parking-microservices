@@ -82,7 +82,10 @@ def init_tariff_table():
     conn.close()
 
 
-init_tariff_table()
+try:
+    init_tariff_table()
+except Exception as e:
+    print(f"[INIT WARNING] tariff_service init skipped: {e}")
 
 # ------------------------------------------------------
 # GET CURRENT TARIFF

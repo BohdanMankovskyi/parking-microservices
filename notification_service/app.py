@@ -35,7 +35,10 @@ def init_db():
     cur.close()
     conn.close()
 
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"[INIT WARNING] notification_service init_db skipped: {e}")
 
 # POST /notify
 @app.route("/notify", methods=["POST"])

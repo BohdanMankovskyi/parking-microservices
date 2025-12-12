@@ -61,7 +61,10 @@ def init_db():
     conn.close()
 
 
-init_db()
+try:
+    init_db()
+except Exception as e:
+    print(f"[INIT WARNING] offline_payment_service init_db skipped: {e}")
 
 
 # ------------------ HEALTH ------------------
