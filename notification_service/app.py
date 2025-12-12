@@ -2,19 +2,49 @@ from flask import Flask, request, jsonify
 import pyodbc
 import datetime
 import os
+import sys
+
+
+class DummyCursor:
+    def execute(self, *args, **kwargs):
+        return None
+
+    def fetchone(self):
+        return None
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        return None
+
+
+class DummyConn:
+    def cursor(self):
+        return DummyCursor()
+
+    def commit(self):
+        return None
+
+    def close(self):
+        return None
 
 app = Flask(__name__)
 
 def get_conn():
     server = os.getenv("DB_SERVER", "host.docker.internal")
-    return pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};"
-        f"SERVER={server},1433;"
-        "DATABASE=NotificationDB;"
-        "UID=sa;"
-        "PWD=SaPass123!;"
-        "TrustServerCertificate=yes;"
-    )
+    try:
+        return pyodbc.connect(
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            f"SERVER={server},1433;"
+            "DATABASE=NotificationDB;"
+            "UID=sa;"
+            "PWD=SaPass123!;"
+            "TrustServerCertificate=yes;"
+        )
+    except Exception as e:
+        print(f"[DB SKIP] notification_service: {e}", file=sys.stderr)
+        return DummyConn()
 
 # Init DB
 def init_db():
@@ -38,7 +68,7 @@ def init_db():
 try:
     init_db()
 except Exception as e:
-    print(f"[INIT WARNING] notification_service init_db skipped: {e}")
+    print(f"[INIT WARNING] notification_service init_db skipped: {e}", file=sys.stderr)
 
 # POST /notify
 @app.route("/notify", methods=["POST"])

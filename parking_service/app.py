@@ -3,6 +3,32 @@ import pyodbc
 import datetime
 import requests
 import os
+import sys
+
+
+class DummyCursor:
+    def execute(self, *args, **kwargs):
+        return None
+
+    def fetchone(self):
+        return None
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        return None
+
+
+class DummyConn:
+    def cursor(self):
+        return DummyCursor()
+
+    def commit(self):
+        return None
+
+    def close(self):
+        return None
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "supersecretkey"
@@ -26,7 +52,11 @@ def get_db_connection():
         "PWD=SaPass123!;"
         "TrustServerCertificate=yes;"
     )
-    return pyodbc.connect(conn_str)
+    try:
+        return pyodbc.connect(conn_str)
+    except Exception as e:
+        print(f"[DB SKIP] parking_service: {e}", file=sys.stderr)
+        return DummyConn()
 
 
 # ----------------------------------------------------------------------

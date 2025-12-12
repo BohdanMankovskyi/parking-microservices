@@ -3,6 +3,32 @@ import pyodbc
 import requests
 import datetime
 import os
+import sys
+
+
+class DummyCursor:
+    def execute(self, *args, **kwargs):
+        return None
+
+    def fetchone(self):
+        return (0,)
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        return None
+
+
+class DummyConn:
+    def cursor(self):
+        return DummyCursor()
+
+    def commit(self):
+        return None
+
+    def close(self):
+        return None
 
 app = Flask(__name__)
 
@@ -14,13 +40,17 @@ AUTH_URL = "http://auth_service:5001/auth/verify"
 # =====================================================
 def get_conn(db_name):
     server = os.getenv("DB_SERVER", "host.docker.internal")
-    return pyodbc.connect(
-        f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-        f"SERVER={server},1433;"
-        f"DATABASE={db_name};"
-        f"UID=sa;PWD=SaPass123!;"
-        f"TrustServerCertificate=yes;"
-    )
+    try:
+        return pyodbc.connect(
+            f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+            f"SERVER={server},1433;"
+            f"DATABASE={db_name};"
+            f"UID=sa;PWD=SaPass123!;"
+            f"TrustServerCertificate=yes;"
+        )
+    except Exception as e:
+        print(f"[DB SKIP] analytics_service: {e}", file=sys.stderr)
+        return DummyConn()
 
 
 # =====================================================

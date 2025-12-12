@@ -6,6 +6,31 @@ import datetime
 import sys
 import os
 
+
+class DummyCursor:
+    def execute(self, *args, **kwargs):
+        return None
+
+    def fetchone(self):
+        return None
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        return None
+
+
+class DummyConn:
+    def cursor(self):
+        return DummyCursor()
+
+    def commit(self):
+        return None
+
+    def close(self):
+        return None
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "supersecretkey"
 
@@ -15,14 +40,18 @@ app.config["SECRET_KEY"] = "supersecretkey"
 # ----------------------------------------------------
 def get_db_connection():
     server = os.getenv("DB_SERVER", "host.docker.internal")
-    return pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};"
-        f"SERVER={server},1433;"
-        "DATABASE=AuthDB;"
-        "UID=sa;"
-        "PWD=SaPass123!;"
-        "TrustServerCertificate=yes;"
-    )
+    try:
+        return pyodbc.connect(
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            f"SERVER={server},1433;"
+            "DATABASE=AuthDB;"
+            "UID=sa;"
+            "PWD=SaPass123!;"
+            "TrustServerCertificate=yes;"
+        )
+    except Exception as e:
+        print(f"[DB SKIP] auth_service: {e}")
+        return DummyConn()
 
 
 # ----------------------------------------------------

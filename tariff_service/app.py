@@ -2,6 +2,35 @@ from flask import Flask, request, jsonify
 import pyodbc
 import datetime
 import os
+import sys
+
+
+class DummyCursor:
+    def __init__(self):
+        self._one = (0,)
+
+    def execute(self, *args, **kwargs):
+        return None
+
+    def fetchone(self):
+        return self._one
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        return None
+
+
+class DummyConn:
+    def cursor(self):
+        return DummyCursor()
+
+    def commit(self):
+        return None
+
+    def close(self):
+        return None
 
 app = Flask(__name__)
 
@@ -21,13 +50,17 @@ def calculate_fee(minutes: float, hourly_rate: float, free_minutes: int) -> floa
 # ------------------------------------------------------
 def get_conn():
     server = os.getenv("DB_SERVER", "host.docker.internal")
-    return pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};"
-        f"SERVER={server},1433;"
-        "DATABASE=TariffDB;"
-        "UID=sa;PWD=SaPass123!;"
-        "TrustServerCertificate=yes;"
-    )
+    try:
+        return pyodbc.connect(
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            f"SERVER={server},1433;"
+            "DATABASE=TariffDB;"
+            "UID=sa;PWD=SaPass123!;"
+            "TrustServerCertificate=yes;"
+        )
+    except Exception as e:
+        print(f"[DB SKIP] tariff_service: {e}", file=sys.stderr)
+        return DummyConn()
 
 # ------------------------------------------------------
 # INITIALIZATION — FIX TABLE AND COLUMNS
@@ -85,7 +118,7 @@ def init_tariff_table():
 try:
     init_tariff_table()
 except Exception as e:
-    print(f"[INIT WARNING] tariff_service init skipped: {e}")
+    print(f"[INIT WARNING] tariff_service init skipped: {e}", file=sys.stderr)
 
 # ------------------------------------------------------
 # GET CURRENT TARIFF

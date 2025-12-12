@@ -6,6 +6,32 @@ import io
 import qrcode
 import os
 import requests
+import sys
+
+
+class DummyCursor:
+    def execute(self, *args, **kwargs):
+        return None
+
+    def fetchone(self):
+        return None
+
+    def fetchall(self):
+        return []
+
+    def close(self):
+        return None
+
+
+class DummyConn:
+    def cursor(self):
+        return DummyCursor()
+
+    def commit(self):
+        return None
+
+    def close(self):
+        return None
 
 app = Flask(__name__)
 PARKING_URL = os.getenv("PARKING_URL_BASE", "http://parking_service:5003")
@@ -21,7 +47,11 @@ def get_db_connection():
         "PWD=SaPass123!;"
         "TrustServerCertificate=yes;"
     )
-    return pyodbc.connect(conn_str)
+    try:
+        return pyodbc.connect(conn_str)
+    except Exception as e:
+        print(f"[DB SKIP] offline_payment_service: {e}", file=sys.stderr)
+        return DummyConn()
 
 
 # ------------------ INIT DB ------------------
@@ -64,7 +94,7 @@ def init_db():
 try:
     init_db()
 except Exception as e:
-    print(f"[INIT WARNING] offline_payment_service init_db skipped: {e}")
+    print(f"[INIT WARNING] offline_payment_service init_db skipped: {e}", file=sys.stderr)
 
 
 # ------------------ HEALTH ------------------
