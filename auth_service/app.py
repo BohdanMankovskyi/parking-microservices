@@ -4,6 +4,7 @@ import pyodbc
 import jwt
 import datetime
 import sys
+import os
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "supersecretkey"
@@ -13,9 +14,10 @@ app.config["SECRET_KEY"] = "supersecretkey"
 # DATABASE
 # ----------------------------------------------------
 def get_db_connection():
+    server = os.getenv("DB_SERVER", "host.docker.internal")
     return pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};"
-        "SERVER=host.docker.internal,1433;"
+        f"SERVER={server},1433;"
         "DATABASE=AuthDB;"
         "UID=sa;"
         "PWD=SaPass123!;"

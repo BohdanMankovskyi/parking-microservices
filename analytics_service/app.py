@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import pyodbc
 import requests
 import datetime
+import os
 
 app = Flask(__name__)
 
@@ -12,9 +13,10 @@ AUTH_URL = "http://auth_service:5001/auth/verify"
 #   DATABASE CONNECTIONS
 # =====================================================
 def get_conn(db_name):
+    server = os.getenv("DB_SERVER", "host.docker.internal")
     return pyodbc.connect(
         f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-        f"SERVER=host.docker.internal,1433;"
+        f"SERVER={server},1433;"
         f"DATABASE={db_name};"
         f"UID=sa;PWD=SaPass123!;"
         f"TrustServerCertificate=yes;"

@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import pyodbc
 import datetime
 import requests
+import os
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "supersecretkey"
@@ -16,9 +17,10 @@ NOTIFY_URL = "http://notification_service:5012/notify"
 # Подключение к БД ParkingDB2
 # ----------------------------------------------------------------------
 def get_db_connection():
+    server = os.getenv("DB_SERVER", "host.docker.internal")
     conn_str = (
         "DRIVER={ODBC Driver 17 for SQL Server};"
-        "SERVER=host.docker.internal,1433;"
+        f"SERVER={server},1433;"
         "DATABASE=ParkingDB2;"
         "UID=sa;"
         "PWD=SaPass123!;"

@@ -1,6 +1,22 @@
 version: '3.9'
 
 services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "SaPass123!"
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "SaPass123!", "-Q", "SELECT 1"]
+      interval: 10s
+      retries: 30
+    networks:
+      - parking_net
+
+services:
   auth_service:
     build: ./auth_service
     container_name: auth_service
@@ -20,8 +36,10 @@ services:
       DB_USER: sa
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
+      DB_SERVER: sqlserver
     depends_on:
       - auth_service
+      - sqlserver
     networks:
       - parking_net
 
@@ -37,9 +55,11 @@ services:
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
       VEHICLE_URL: "http://vehicle_service:5002"
+      DB_SERVER: sqlserver
     depends_on:
       - auth_service
       - vehicle_service
+      - sqlserver
     networks:
       - parking_net
 
@@ -54,8 +74,10 @@ services:
       DB_USER: sa
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
+      DB_SERVER: sqlserver
     depends_on:
       - auth_service
+      - sqlserver
     networks:
       - parking_net
 
@@ -66,8 +88,11 @@ services:
       - "5008:5008"
     depends_on:
       - payment_service
+      - sqlserver
     networks:
       - parking_net
+    environment:
+      DB_SERVER: sqlserver
 
   analytics_service:
     build: ./analytics_service
@@ -75,11 +100,12 @@ services:
     ports:
       - "5005:5005"
     environment:
-      DB_SERVER: host.docker.internal
+      DB_SERVER: sqlserver
     depends_on:
       - payment_service
       - parking_service
       - vehicle_service
+      - sqlserver
     networks:
       - parking_net
 
@@ -101,6 +127,7 @@ services:
       - parking_service
       - payment_service
       - vehicle_service
+      - sqlserver
     networks:
       - parking_net
 
@@ -132,10 +159,12 @@ services:
     ports:
       - "5011:5011"
     environment:
-      DB_SERVER: host.docker.internal
+      DB_SERVER: sqlserver
       DB_NAME: TariffDB
       DB_USER: sa
       DB_PASSWORD: SaPass123!
+    depends_on:
+      - sqlserver
     networks:
       - parking_net
 
@@ -145,6 +174,10 @@ services:
     container_name: notification_service
     ports:
       - "5012:5012"
+    environment:
+      DB_SERVER: sqlserver
+    depends_on:
+      - sqlserver
     networks:
       - parking_net
 

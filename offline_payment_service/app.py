@@ -12,9 +12,10 @@ PARKING_URL = os.getenv("PARKING_URL_BASE", "http://parking_service:5003")
 
 # ------------------ DB CONNECTION ------------------
 def get_db_connection():
+    server = os.getenv("DB_SERVER", "host.docker.internal")
     conn_str = (
         "DRIVER={ODBC Driver 17 for SQL Server};"
-        "SERVER=host.docker.internal,1433;"
+        f"SERVER={server},1433;"
         "DATABASE=PaymentDB;"
         "UID=sa;"
         "PWD=SaPass123!;"

@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import pyodbc
 import datetime
+import os
 
 app = Flask(__name__)
 
@@ -19,9 +20,10 @@ def calculate_fee(minutes: float, hourly_rate: float, free_minutes: int) -> floa
 # DATABASE CONNECTION
 # ------------------------------------------------------
 def get_conn():
+    server = os.getenv("DB_SERVER", "host.docker.internal")
     return pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};"
-        "SERVER=host.docker.internal,1433;"
+        f"SERVER={server},1433;"
         "DATABASE=TariffDB;"
         "UID=sa;PWD=SaPass123!;"
         "TrustServerCertificate=yes;"
