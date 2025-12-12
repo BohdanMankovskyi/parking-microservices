@@ -1,4 +1,4 @@
-name: CI
+name: Final build
 
 on:
   push:
@@ -63,13 +63,7 @@ jobs:
 
       - name: Start core stack
         run: |
-          docker compose up -d sqlserver
-          # wait for SQL Server
-          for i in {1..30}; do
-            if docker compose exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P SaPass123! -Q "SELECT 1" >/dev/null 2>&1; then break; fi
-            sleep 5
-          done
-          docker compose up -d auth_service vehicle_service parking_service payment_service offline_payment_service analytics_service monitoring_service notification_service tariff_service dashboard_service ocr_service
+          docker compose up -d auth_service vehicle_service parking_service payment_service offline_payment_service analytics_service monitoring_service notification_service tariff_service dashboard_service ocr_service ocr_local
           # give services time to start
           sleep 15
 
