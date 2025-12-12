@@ -21,8 +21,8 @@ jobs:
           - { name: monitoring_service, path: monitoring_service }
           - { name: notification_service, path: notification_service }
           - { name: ocr_service, path: ocr_service }
-          - { name: tariff_service, path: tariff_service }
           - { name: ocr_local, path: ocr_local }
+          - { name: tariff_service, path: tariff_service }
     steps:
       - uses: actions/checkout@v4
 
@@ -87,6 +87,7 @@ jobs:
             "http://localhost:5011/health"
             "http://localhost:5012/health"
             "http://localhost:8080/health"
+            "http://localhost:5010/health"
           )
           for url in "${endpoints[@]}"; do
             echo "Checking $url"

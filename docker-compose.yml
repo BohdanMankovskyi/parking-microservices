@@ -16,7 +16,6 @@ services:
     networks:
       - parking_net
 
-services:
   auth_service:
     build: ./auth_service
     container_name: auth_service
@@ -31,12 +30,11 @@ services:
     ports:
       - "5002:5002"
     environment:
-      DB_SERVER: host.docker.internal
+      DB_SERVER: sqlserver
       DB_NAME: VehicleDB
       DB_USER: sa
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
-      DB_SERVER: sqlserver
     depends_on:
       - auth_service
       - sqlserver
@@ -49,13 +47,12 @@ services:
     ports:
       - "5003:5003"
     environment:
-      DB_SERVER: host.docker.internal
+      DB_SERVER: sqlserver
       DB_NAME: ParkingDB2
       DB_USER: sa
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
       VEHICLE_URL: "http://vehicle_service:5002"
-      DB_SERVER: sqlserver
     depends_on:
       - auth_service
       - vehicle_service
@@ -69,12 +66,11 @@ services:
     ports:
       - "5004:5004"
     environment:
-      DB_SERVER: host.docker.internal
+      DB_SERVER: sqlserver
       DB_NAME: PaymentDB
       DB_USER: sa
       DB_PASSWORD: SaPass123!
       AUTH_VERIFY_URL: "http://auth_service:5001/auth/verify"
-      DB_SERVER: sqlserver
     depends_on:
       - auth_service
       - sqlserver
@@ -86,13 +82,13 @@ services:
     container_name: offline_payment_service
     ports:
       - "5008:5008"
+    environment:
+      DB_SERVER: sqlserver
     depends_on:
       - payment_service
       - sqlserver
     networks:
       - parking_net
-    environment:
-      DB_SERVER: sqlserver
 
   analytics_service:
     build: ./analytics_service
@@ -121,7 +117,7 @@ services:
       PAYMENT_URL_BASE: "http://payment_service:5004"
       VEHICLE_URL_BASE: "http://vehicle_service:5002"
       OFFLINE_URL_BASE: "http://offline_payment_service:5008"
-      OCR_LOCAL_URL: "http://host.docker.internal:5010/recognize"
+      OCR_LOCAL_URL: "http://ocr_local:5010/recognize"
     depends_on:
       - auth_service
       - parking_service
@@ -146,13 +142,23 @@ services:
       - offline_payment_service
     networks:
       - parking_net
+
   ocr_service:
     build: ./ocr_service
     container_name: ocr_service
     ports:
-    - "5009:5009"
+      - "5009:5009"
     networks:
-    - parking_net
+      - parking_net
+
+  ocr_local:
+    build: ./ocr_local
+    container_name: ocr_local
+    ports:
+      - "5010:5010"
+    networks:
+      - parking_net
+
   tariff_service:
     build: ./tariff_service
     container_name: tariff_service
@@ -168,7 +174,6 @@ services:
     networks:
       - parking_net
 
-
   notification_service:
     build: ./notification_service
     container_name: notification_service
@@ -180,9 +185,6 @@ services:
       - sqlserver
     networks:
       - parking_net
-
-
-
 
 networks:
   parking_net:
